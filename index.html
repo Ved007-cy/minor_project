@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoCharge Ride</title>
+<style>
+:root{
+  --bg:#07110d;--panel:#0d1b15;--panel2:#11231b;--text:#eef8f2;--muted:#8fa79a;
+  --green:#36e58b;--green2:#1dbd70;--line:#20382c;--danger:#ff6b6b;--yellow:#ffd166;
+}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(145deg,#06100c,#0a1711 55%,#07100c);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button{font:inherit}.app{display:flex;min-height:100vh}.sidebar{width:245px;background:#08130e;border-right:1px solid var(--line);padding:24px 16px;position:fixed;inset:0 auto 0 0}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:20px;margin:4px 8px 30px}.logo{width:38px;height:38px;border-radius:12px;background:var(--green);color:#06110b;display:grid;place-items:center;font-size:21px}
+.nav button{width:100%;border:0;background:none;color:var(--muted);padding:13px 12px;border-radius:11px;text-align:left;cursor:pointer;margin:2px 0}.nav button.active,.nav button:hover{background:#11241b;color:var(--text)}.nav span{margin-right:10px}.side-note{position:absolute;bottom:22px;left:20px;right:20px;background:#0e2018;border:1px solid var(--line);padding:12px;border-radius:12px;font-size:12px;color:var(--muted)}
+main{margin-left:245px;width:calc(100% - 245px);padding:28px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.top h1{margin:5px 0 0;font-size:30px}.status{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.dot{width:10px;height:10px;background:#ff6b6b;border-radius:50%;box-shadow:0 0 0 3px #ff6b6b18}
+.dot.connected{background:var(--green);box-shadow:0 0 0 3px #36e58b22,0 0 18px var(--green)}
+.device-pill{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--line);background:#0c1b14;border-radius:11px}
+.device-pill.connected{border-color:#2b7f59;background:#0d2419}.wifi-btn{border:1px solid var(--line);background:#14281e;color:var(--text);padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}.wifi-btn:hover{filter:brightness(1.1)}.wifi-modal{position:fixed;right:25px;top:78px;width:340px;background:#0d1b15;border:1px solid var(--line);border-radius:15px;padding:18px;z-index:50;box-shadow:0 20px 50px #000b;display:none}.wifi-modal.show{display:block}.wifi-modal h3{margin:0 0 12px}.wifi-modal label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}.wifi-modal input{width:100%;box-sizing:border-box;background:#08130e;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px}.wifi-actions{display:flex;gap:8px;margin-top:14px}.wifi-status{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.4}
+.connect-btn{border:1px solid var(--line);background:#14281e;color:var(--text);padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:linear-gradient(160deg,#102118,#0c1913);border:1px solid var(--line);border-radius:17px;padding:19px;box-shadow:0 12px 30px #0003}.metric-label{color:var(--muted);font-size:13px}.metric{font-size:28px;font-weight:800;margin:9px 0 3px}.sub{font-size:12px;color:var(--muted)}.up{color:var(--green)}
+.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:16px;margin-top:16px}.card h2{font-size:17px;margin:0 0 17px}.chart{height:270px;position:relative}.chart svg{width:100%;height:100%;overflow:visible}.axis{font-size:10px;fill:#789285}.gridline{stroke:#1c3328;stroke-width:1}.ride-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.ride-value{font-size:23px;font-weight:800;margin-top:5px}.battery{height:15px;background:#1a2b23;border-radius:20px;overflow:hidden;margin:12px 0 9px}.battery i{display:block;height:100%;width:78%;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:20px;transition:width .4s}.health-row{display:flex;justify-content:space-between;font-size:13px;margin:9px 0}.health-good{color:var(--green)}.health-warn{color:var(--yellow)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#12251c;color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}.btn.primary{background:var(--green);color:#06110b;border-color:var(--green);font-weight:800}.btn:hover{filter:brightness(1.08)}
+.map{height:300px;border-radius:13px;background:radial-gradient(circle at 50% 45%,#183528 0 2px,transparent 3px),linear-gradient(135deg,#10241b,#0a1711);position:relative;overflow:hidden;border:1px solid var(--line)}.road{position:absolute;height:2px;background:#284639;transform:rotate(-17deg);left:-10%;right:-10%;top:46%;box-shadow:0 45px #284639,-30px -70px #284639}.route{position:absolute;inset:0}.map-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;border-radius:50%;background:var(--green);box-shadow:0 0 0 7px #36e58b2b,0 0 25px #36e58b}.map-label{position:absolute;left:15px;top:15px;color:var(--muted);font-size:12px;background:#08130dcc;padding:7px 9px;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.badge{padding:5px 8px;border-radius:7px;background:#163024;color:var(--green);font-size:11px}
+.section{display:none}.section.active{display:block}.mobile-menu{display:none}
+.toast{position:fixed;right:22px;bottom:22px;background:#14281e;border:1px solid var(--line);padding:13px 15px;border-radius:11px;box-shadow:0 10px 30px #0008;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.sidebar{width:210px}main{margin-left:210px;width:calc(100% - 210px)}}
+@media(max-width:700px){.sidebar{display:none}.mobile-menu{display:block}.app main{margin:0;width:100%;padding:18px}.top{align-items:flex-start}.top h1{font-size:24px}.grid{grid-template-columns:1fr 1fr}.ride-panel{grid-template-columns:1fr 1fr}.card{padding:15px}.map{height:230px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">⚡</div>EcoCharge</div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">🏠 <span>Dashboard</span></button>
+    <button data-page="ride">🚴 <span>Live Ride</span></button>
+    <button data-page="battery">🔋 <span>Battery</span></button>
+    <button data-page="history">📊 <span>Ride History</span></button>
+  </nav>
+  <div class="side-note">Browser GPS mode is active. Hardware telemetry can be connected later through the ESP32 API.</div>
+</aside>
+
+<main>
+<header class="top">
+  <div><div class="eyebrow">Eco mobility platform</div><h1 id="pageTitle">Ride Dashboard</h1></div>
+  <div class="status">
+      <div class="device-pill" id="devicePill">
+        <span class="dot" id="deviceDot"></span>
+        <span id="connection">Device not connected</span>
+        <button class="connect-btn" id="connectBtn" onclick="openWifi()">Connect</button>
+      </div>
+      <button class="btn mobile-menu" onclick="toggleNav()">☰</button>
+    </div>
+</header>
+
+<section id="dashboard" class="section active">
+  <div class="card" id="deviceNotice" style="margin-bottom:16px;padding:13px 16px">
+    <span id="deviceNoticeText">🔴 Device is not connected. Live bicycle and battery telemetry is paused. GPS/history can still be viewed.</span>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="metric-label">Today's distance</div><div class="metric" id="distance">0.00 km</div><div class="sub">GPS tracked</div></div>
+    <div class="card"><div class="metric-label">Calories burned</div><div class="metric" id="calories">0 kcal</div><div class="sub">Estimated from ride</div></div>
+    <div class="card"><div class="metric-label">Average speed</div><div class="metric" id="speed">0.0 km/h</div><div class="sub">Current ride</div></div>
+    <div class="card"><div class="metric-label">Energy generated</div><div class="metric" id="energy">0.00 Wh</div><div class="sub"><span class="up">●</span> EcoCharge estimate</div></div>
+  </div>
+
+  <div class="layout">
+    <div class="card"><h2>Ride performance</h2><div class="chart"><svg id="chart" viewBox="0 0 800 270" preserveAspectRatio="none"></svg></div></div>
+    <div class="card"><h2>Battery health</h2>
+      <div style="display:flex;justify-content:space-between">
+        <div><div class="metric" id="batteryPct">78%</div><div class="sub">State of charge</div></div>
+        <div style="text-align:right"><div class="metric" id="health">92%</div><div class="sub">Health score</div></div>
+      </div>
+      <div class="battery"><i id="batteryBar"></i></div>
+      <div class="health-row"><span>Temperature</span><b id="temp">29°C</b></div>
+      <div class="health-row"><span>Voltage</span><b id="volt">12.6 V</b></div>
+      <div class="health-row"><span>Cycles</span><b id="cycles">143</b></div>
+      <div class="health-row"><span>Capacity retention</span><b id="retention" class="health-good">92%</b></div>
+      <div class="health-row"><span>Condition</span><b id="condition" class="health-good">Good</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="card"><h2>Ride route</h2><div class="map"><div class="road"></div><div class="road" style="top:62%;transform:rotate(12deg)"></div><div class="route" id="route"></div><div class="map-center"></div><div class="map-label">📍 Live GPS position</div></div></div>
+    <div class="card"><h2>Quick controls</h2><p class="sub">Start a real GPS ride or use demo mode to test the dashboard.</p><div class="actions"><button class="btn primary" onclick="startRide()">▶ Start ride</button><button class="btn" onclick="stopRide()">■ Stop</button><button class="btn" onclick="demoRide()">⚡ Demo telemetry</button></div><p class="sub" style="margin-top:16px" id="gpsHint">Device is disconnected. Connect it from the top-right corner to enable live telemetry.</p></div>
+  </div>
+<div class="card" style="margin-top:16px">
+  <h2>Recent ride history</h2>
+  <table><thead><tr><th>Date</th><th>Distance</th><th>Time</th><th>Calories</th><th>Energy</th></tr></thead>
+  <tbody id="dashboardHistoryBody"></tbody></table>
+</div>
+</section>
+
+<section id="ride" class="section">
+  <div class="card"><h2>Live ride</h2><div class="ride-panel">
+    <div><div class="metric-label">Distance</div><div class="ride-value" id="rideDistance">0.00 km</div></div>
+    <div><div class="metric-label">Speed</div><div class="ride-value" id="rideSpeed">0.0 km/h</div></div>
+    <div><div class="metric-label">Calories</div><div class="ride-value" id="rideCalories">0 kcal</div></div>
+    <div><div class="metric-label">Cadence</div><div class="ride-value" id="cadence">0 rpm</div></div>
+    <div><div class="metric-label">Power</div><div class="ride-value" id="power">0 W</div></div>
+    <div><div class="metric-label">Energy</div><div class="ride-value" id="rideEnergy">0.00 Wh</div></div>
+  </div></div>
+</section>
+
+<section id="battery" class="section">
+  <div class="grid">
+    <div class="card"><div class="metric-label">State of charge</div><div class="metric" id="b1">78%</div><div class="sub">Estimated remaining capacity</div></div>
+    <div class="card"><div class="metric-label">Battery health</div><div class="metric">92%</div><div class="sub">Estimated usable capacity</div></div>
+    <div class="card"><div class="metric-label">Charge cycles</div><div class="metric">143</div><div class="sub">Lifetime cycles</div></div>
+    <div class="card"><div class="metric-label">Temperature</div><div class="metric" id="btemp">29°C</div><div class="sub">Within normal range</div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2>Battery health indicators</h2>
+    <div class="health-row"><span>Voltage stability</span><b class="health-good">Excellent</b></div>
+    <div class="health-row"><span>Temperature</span><b class="health-good">Normal</b></div>
+    <div class="health-row"><span>Capacity retention</span><b class="health-good">92%</b></div>
+    <div class="health-row"><span>Estimated status</span><b class="health-good">Healthy</b></div>
+  </div>
+</section>
+
+<section id="history" class="section">
+  <div class="card"><h2>Ride history</h2><table><thead><tr><th>Date</th><th>Distance</th><th>Time</th><th>Calories</th><th>Energy</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+</section>
+</main></div>
+<div class="wifi-modal" id="wifiModal">
+  <h3>Connect EcoCharge Device</h3>
+  <div class="sub">The ESP32 and this computer/phone must be connected to the <b>same Wi-Fi network</b>.</div>
+  <label for="deviceHost">ESP32 IP address or hostname</label>
+  <input id="deviceHost" placeholder="192.168.1.50 or ecocharge.local">
+  <div class="wifi-actions">
+    <button class="btn primary" onclick="connectWifi()">Test & Connect</button>
+    <button class="btn" onclick="closeWifi()">Cancel</button>
+  </div>
+  <div class="wifi-status" id="wifiStatus">Expected endpoint: <b>/api/status</b></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const state={connected:false,running:false,demo:false,watchId:null,lastPos:null,distance:0,speed:0,calories:0,energy:0,power:0,cadence:0,start:0,lastTick:Date.now(),samples:[]};
+const $=id=>document.getElementById(id);
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function toast(t){const x=$('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2400)}
+function nav(page){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));$(page).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('pageTitle').textContent={dashboard:'Ride Dashboard',ride:'Live Ride',battery:'Battery Health',history:'Ride History'}[page];if(page==='history')renderHistory()}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>nav(b.dataset.page));
+function haversine(a,b){const R=6371;const dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function updateUI(){
+ const connected=state.connected;
+ $('distance').textContent=connected?state.distance.toFixed(2)+' km':'—';
+ $('rideDistance').textContent=connected?state.distance.toFixed(2)+' km':'—';
+ $('speed').textContent=connected?state.speed.toFixed(1)+' km/h':'—';
+ $('rideSpeed').textContent=connected?state.speed.toFixed(1)+' km/h':'—';
+ $('calories').textContent=connected?Math.round(state.calories)+' kcal':'—';
+ $('rideCalories').textContent=connected?Math.round(state.calories)+' kcal':'—';
+ $('energy').textContent=connected?state.energy.toFixed(2)+' Wh':'—';
+ $('rideEnergy').textContent=connected?state.energy.toFixed(2)+' Wh':'—';
+ $('power').textContent=connected?Math.round(state.power)+' W':'—';
+ $('cadence').textContent=connected?Math.round(state.cadence)+' rpm':'—';
+ $('batteryPct').textContent=connected?batterySOC+'%':batterySOC+'%';
+ $('health').textContent=connected?batteryHealth+'%':batteryHealth+'%';
+ $('temp').textContent=connected?batteryTemp+'°C':batteryTemp+'°C';
+ $('volt').textContent=connected?batteryVolt.toFixed(1)+' V':batteryVolt.toFixed(1)+' V';
+ $('cycles').textContent=connected?batteryCycles:'—'; $('retention').textContent=batteryHealth+'%'; $('condition').textContent=batteryHealth>=80?'Good':batteryHealth>=60?'Fair':'Service needed';
+ $('batteryBar').style.width=clamp(batterySOC,0,100)+'%'; if($('b1'))$('b1').textContent=batterySOC+'%'; if($('btemp'))$('btemp').textContent=batteryTemp+'°C';
+ $('connection').textContent=connected?'Device connected':'Device not connected';
+ $('connectBtn').textContent=connected?'Disconnect':'Connect';
+ $('devicePill').classList.toggle('connected',connected);
+ $('deviceDot').classList.toggle('connected',connected);
+ $('deviceNoticeText').textContent=connected
+   ? '🟢 EcoCharge device connected. Live bicycle and battery telemetry is active.'
+   : '🔴 Device is not connected. Live bicycle and battery telemetry is paused. GPS/history can still be viewed.';
+ $('gpsHint').textContent=connected
+   ? 'Device connected. Start a GPS ride or demo telemetry.'
+   : 'Device is disconnected. Connect it from the top-right corner to enable live telemetry.';
+ drawChart();
+}
+function drawChart(){
+ const svg=$('chart'), vals=state.samples.length?state.samples.slice(-30):[0,0,0,0,0];let max=Math.max(10,...vals);
+ let lines='',path=''; for(let i=0;i<5;i++){let y=35+i*48;lines+=`<line class="gridline" x1="0" y1="${y}" x2="800" y2="${y}"/>`}
+ vals.forEach((v,i)=>{let x=10+(i/(Math.max(1,vals.length-1)))*780,y=235-(v/max)*190;path+=(i?' L ':'M ')+x+' '+y});
+ svg.innerHTML=lines+`<path d="${path}" fill="none" stroke="#36e58b" stroke-width="3" stroke-linecap="round"/>`;
+}
+function tick(){
+ if(!state.running || !state.connected)return;
+ const now=Date.now(),dt=(now-state.lastTick)/1000;state.lastTick=now;
+ if(state.demo){state.speed=18+Math.sin(now/900)*5+Math.random()*2;state.distance+=state.speed*dt/3600;state.power=100+state.speed*7+Math.random()*30;state.energy+=state.power*dt/3600;state.calories+=state.speed*0.22*dt/60;state.cadence=70+Math.random()*15;state.samples.push(state.speed);if(state.samples.length>40)state.samples.shift();updateUI()}
+}
+setInterval(tick,1000);
+function startRide(){
+ if(!state.connected){toast('Connect the EcoCharge device first');return}
+ if(state.running)return;
+ state.running=true;state.demo=false;state.start=Date.now();state.lastTick=Date.now();state.samples=[];$('connection').textContent='GPS tracking';$('gpsHint').textContent='GPS tracking is active.';
+ if(navigator.geolocation){state.watchId=navigator.geolocation.watchPosition(pos=>{
+   const p={lat:pos.coords.latitude,lon:pos.coords.longitude};if(state.lastPos){const d=haversine(state.lastPos,p);if(d<0.2){state.distance+=d}}
+   state.lastPos=p;state.speed=Math.max(0,(pos.coords.speed||0)*3.6);state.power=100+state.speed*7;state.energy+=state.power/3600;state.calories+=Math.max(0.01,state.speed)*0.22/60;state.cadence=state.speed?Math.round(55+state.speed*1.5):0;state.samples.push(state.speed);if(state.samples.length>40)state.samples.shift();updateUI();
+ },err=>{toast('GPS unavailable: '+err.message);$('gpsHint').textContent='GPS unavailable. Use Demo telemetry to test.'},{enableHighAccuracy:true,maximumAge:2000,timeout:10000})}else toast('Geolocation is not supported by this browser');
+ toast('Ride started');
+}
+function stopRide(){
+ if(!state.running)return;state.running=false;if(state.watchId!==null)navigator.geolocation?.clearWatch(state.watchId);state.watchId=null;
+ saveRide();$('connection').textContent='GPS ready';$('gpsHint').textContent='Ride saved locally.';toast('Ride saved');state.lastPos=null;
+}
+function demoRide(){if(!state.connected){toast('Connect the EcoCharge device first');return}if(!state.running){state.running=true;state.demo=true;state.start=Date.now();state.lastTick=Date.now();state.samples=[];$('connection').textContent='Demo telemetry';toast('Demo ride started')}else{state.demo=true;toast('Demo telemetry enabled')}}
+function saveRide(){let h=JSON.parse(localStorage.getItem('ecocharge_rides')||'[]');h.unshift({date:new Date().toLocaleString(),distance:state.distance,time:Math.round((Date.now()-state.start)/60000),calories:state.calories,energy:state.energy});localStorage.setItem('ecocharge_rides',JSON.stringify(h.slice(0,20)));renderHistory()}
+function renderHistory(){
+ const h=JSON.parse(localStorage.getItem('ecocharge_rides')||'[]');
+ const rows=h.length?h.map(r=>`<tr><td>${r.date}</td><td>${Number(r.distance).toFixed(2)} km</td><td>${r.time} min</td><td>${Math.round(r.calories)} kcal</td><td>${Number(r.energy).toFixed(2)} Wh</td></tr>`).join(''):`<tr><td colspan="5" style="color:#8fa79a">No rides saved yet. Start a ride or demo ride.</td></tr>`;
+ if($('historyBody')) $('historyBody').innerHTML=rows;
+ if($('dashboardHistoryBody')) $('dashboardHistoryBody').innerHTML=rows;
+}
+
+let deviceHost=localStorage.getItem('ecocharge_device_host')||'';
+let wifiTimer=null;
+
+function openWifi(){
+  $('wifiModal').classList.add('show');
+  $('deviceHost').value=deviceHost;
+  $('wifiStatus').innerHTML='Enter the ESP32 IP address or <b>ecocharge.local</b>. Both devices must be on the same Wi-Fi.';
+}
+function closeWifi(){$('wifiModal').classList.remove('show')}
+
+async function connectWifi(){
+  const host=$('deviceHost').value.trim().replace(/\/$/,'');
+  if(!host){$('wifiStatus').textContent='Enter the ESP32 IP address or hostname.';return}
+  const base=host.startsWith('http://')||host.startsWith('https://')?host:'http://'+host;
+  $('wifiStatus').textContent='Checking EcoCharge device…';
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),5000);
+    const res=await fetch(base+'/api/status',{method:'GET',cache:'no-store',signal:controller.signal});
+    clearTimeout(timeout);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json().catch(()=>({}));
+    deviceHost=base;
+    localStorage.setItem('ecocharge_device_host',deviceHost);
+    state.connected=true;
+    state.demo=false;
+    applyHardwareData(data);
+    closeWifi();
+    toast('EcoCharge connected over Wi-Fi');
+    updateUI();
+    startDevicePolling();
+  }catch(err){
+    state.connected=false;
+    updateUI();
+    $('wifiStatus').innerHTML='❌ Cannot reach the device. Check that the ESP32 and browser are on the <b>same Wi-Fi</b>, then verify the IP address and that the ESP32 exposes <b>/api/status</b>.';
+  }
+}
+
+function disconnectDevice(){
+  state.connected=false;
+  state.running=false;
+  state.demo=false;
+  if(state.watchId!==null) navigator.geolocation?.clearWatch(state.watchId);
+  state.watchId=null;
+  state.lastPos=null;
+  if(wifiTimer) clearInterval(wifiTimer);
+  wifiTimer=null;
+  toast('EcoCharge device disconnected');
+  updateUI();
+}
+
+function applyHardwareData(d){
+  // Supports the recommended ESP32 JSON names and common aliases.
+  if(Number.isFinite(Number(d.battery_soc))) batterySOC=Number(d.battery_soc);
+  else if(Number.isFinite(Number(d.soc))) batterySOC=Number(d.soc);
+  if(Number.isFinite(Number(d.battery_health))) batteryHealth=Number(d.battery_health);
+  else if(Number.isFinite(Number(d.health))) batteryHealth=Number(d.health);
+  if(Number.isFinite(Number(d.battery_temperature))) batteryTemp=Number(d.battery_temperature);
+  else if(Number.isFinite(Number(d.temperature))) batteryTemp=Number(d.temperature);
+  if(Number.isFinite(Number(d.battery_voltage))) batteryVolt=Number(d.battery_voltage);
+  else if(Number.isFinite(Number(d.voltage))) batteryVolt=Number(d.voltage);
+  if(Number.isFinite(Number(d.charge_cycles))) batteryCycles=Number(d.charge_cycles);
+  if(Number.isFinite(Number(d.distance_km))) state.distance=Number(d.distance_km);
+  if(Number.isFinite(Number(d.speed_kmh))) state.speed=Number(d.speed_kmh);
+  if(Number.isFinite(Number(d.calories))) state.calories=Number(d.calories);
+  if(Number.isFinite(Number(d.energy_wh))) state.energy=Number(d.energy_wh);
+  if(Number.isFinite(Number(d.power_w))) state.power=Number(d.power_w);
+  if(Number.isFinite(Number(d.cadence_rpm))) state.cadence=Number(d.cadence_rpm);
+}
+
+let batterySOC=78,batteryHealth=92,batteryTemp=29,batteryVolt=12.6,batteryCycles=143;
+function startDevicePolling(){
+  if(wifiTimer) clearInterval(wifiTimer);
+  wifiTimer=setInterval(async()=>{
+    if(!state.connected||!deviceHost)return;
+    try{
+      const c=new AbortController(); const t=setTimeout(()=>c.abort(),3500);
+      const res=await fetch(deviceHost+'/api/status',{cache:'no-store',signal:c.signal}); clearTimeout(t);
+      if(!res.ok) throw new Error();
+      applyHardwareData(await res.json());
+      updateUI();
+    }catch(e){
+      state.connected=false;
+      updateUI();
+      toast('EcoCharge Wi-Fi connection lost');
+      clearInterval(wifiTimer); wifiTimer=null;
+    }
+  },2000);
+}
+state.connected=false;
+deviceHost=localStorage.getItem('ecocharge_device_host')||'';
+updateUI();
+renderHistory();
+if(deviceHost) connectWifi();
+</script>
+</body>
+</html>
